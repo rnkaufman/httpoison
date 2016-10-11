@@ -82,6 +82,7 @@ defmodule HTTPoison.Base do
       def start, do: :application.ensure_all_started(:httpoison)
 
       defp process_url(url) do
+        url = url |> URI.decode |> URI.encode
         HTTPoison.Base.default_process_url(url)
       end
 
@@ -155,7 +156,11 @@ defmodule HTTPoison.Base do
         else
           url
         end
-        url = process_url(to_string(url))
+        url = url
+              |> to_string
+              |> URI.decode
+              |> URI.encode
+              |> process_url
         body = process_request_body(body)
         headers = process_request_headers(headers)
         HTTPoison.Base.request(__MODULE__, method, url, body, headers, options, &process_status_code/1, &process_headers/1, &process_response_body/1)
